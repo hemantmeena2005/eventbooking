@@ -1,17 +1,16 @@
-import { connectToDatabase } from '../../../lib/mongodb';
-import { getSession } from 'next-auth/react';
-import { ObjectId } from 'mongodb';
+import dbConnect from '../../../lib/dbConnect';
+import Event from '../../../models/Event';
 
 export default async function handler(req, res) {
   const { method } = req;
 
   try {
-    const { db } = await connectToDatabase();
+    await dbConnect();
 
     switch (method) {
       case 'GET':
         // Get all events
-        const events = await db.collection('events').find({}).toArray();
+        const events = await Event.find({});
         res.status(200).json(events);
         break;
 
@@ -25,30 +24,17 @@ export default async function handler(req, res) {
         }
 
         // Create event
-        const result = await db.collection('events').insertOne({
+        const event = await Event.create({
           title,
           description,
           venue,
           date: new Date(date),
           price: parseFloat(price),
           ticketsAvailable: parseInt(ticketsAvailable),
-          organizerId: new ObjectId(organizerId),
-          createdAt: new Date(),
+          organizer: organizerId,
         });
 
-        res.status(201).json({
-          message: 'Event created successfully',
-          event: {
-            _id: result.insertedId,
-            title,
-            description,
-            venue,
-            date,
-            price,
-            ticketsAvailable,
-            organizerId,
-          },
-        });
+        res.status(201).json(event);
         break;
 
       default:

@@ -1,5 +1,5 @@
-import dbConnect from '../../lib/dbConnect';
-import Event from '../../models/Event';
+import dbConnect from '../../../lib/dbConnect.js';
+import Event from '../../../models/Event.js';
 
 export default async function handler(req, res) {
   if (req.method === 'POST') {
